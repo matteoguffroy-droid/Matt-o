@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Studio Podcast</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">🎙️</span><span id="brand-title">Studio Podcast</span></div>
+    <nav>
+      <a href="#dashboard" data-view="dashboard">📊 <span>Tableau de bord</span></a>
+      <a href="#episodes" data-view="episodes">🎧 <span>Épisodes</span></a>
+      <a href="#calendar" data-view="calendar">📅 <span>Calendrier</span></a>
+      <a href="#guests" data-view="guests">👥 <span>Invités</span></a>
+      <a href="#tasks" data-view="tasks">✅ <span>Tâches</span></a>
+      <a href="#settings" data-view="settings">⚙️ <span>Paramètres</span></a>
+    </nav>
+  </aside>
+  <main id="view"></main>
+
+  <dialog id="modal">
+    <form method="dialog" id="modal-form">
+      <header><h2 id="modal-title"></h2><button type="button" class="icon-btn" data-close aria-label="Fermer">✕</button></header>
+      <div id="modal-body"></div>
+      <footer id="modal-footer"></footer>
+    </form>
+  </dialog>
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>

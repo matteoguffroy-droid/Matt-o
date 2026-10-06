@@ -1,0 +1,13 @@
+{
+  "name": "studio-podcast",
+  "version": "1.0.0",
+  "description": "Outil local de gestion de podcast : épisodes, invités, calendrier éditorial, tâches et flux RSS.",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
