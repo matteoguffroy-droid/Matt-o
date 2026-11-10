@@ -2,7 +2,7 @@
 
 ## Légende
 
-Un champion olympique m'a dit un truc que je n'oublierai jamais 👇
+Ce qu'un champion olympique m'a appris 👇
 
 36 épisodes de Silex Podcast. Un champion olympique, le vainqueur du tout premier UTMB, un chercheur qui étudie la fatigue, une sage-femme devenue championne d'Europe…
 

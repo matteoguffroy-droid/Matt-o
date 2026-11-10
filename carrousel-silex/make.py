@@ -128,15 +128,21 @@ def lesson(s):
 
 def cta(c):
     im = photo(c['photo'])
-    y = int(H * 0.12)
-    text(im, (W // 2, y), c['title'], font('Inter Display:black', 70), anchor='ma', blur=14, op=170, spacing=10)
-    rich(im, y + 190, c['text'], font('Inter:bold', 42), lh=56)
+    top_shade(im, end=0.62, alpha=215)
+    y = int(H * 0.09)
+    text(im, (W // 2, y), c['title'], font('Inter Display:black', 92), anchor='ma', blur=14, op=190)
+    text(im, (W // 2, y + 112), c['sub'], font('Inter Display:bold', 52), anchor='ma', blur=12, op=190)
+    yy = y + 250
+    for line, hl in c['lines']:
+        text(im, (W // 2, yy), line, font('Inter:bold', 46), anchor='ma', blur=10, op=200,
+             fill=ACCENT if hl else 'white')
+        yy += 62
     return im
 
 
 COVER = {
     'photo': 'pointe-mont-blanc',
-    'bottom': ["d'un champion olympique,", "d'une légende de l'UTMB", 'et de 34 autres invités'],
+    'bottom': ['tirées de 36 invités,', 'dont un champion olympique'],
     'small': '(que la plupart des coureurs ignorent)',
 }
 
@@ -167,8 +173,9 @@ SLIDES = [
 
 CTA = {
     'photo': 'tente',
-    'title': 'Enregistre ce post\npour ta prochaine prépa',
-    'text': "Commence par l'épisode avec **Kristian Blummenfelt** · lien en bio. Et envoie-le à **ton binôme de sortie longue**.",
+    'title': 'Enregistre ce post',
+    'sub': 'pour ta prochaine prépa',
+    'lines': [("Commence par l'épisode avec", False), ('Kristian Blummenfelt', True), ('lien en bio', False)],
 }
 
 if __name__ == '__main__':
