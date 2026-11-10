@@ -1,22 +1,26 @@
-"""Génère le carrousel « cinq leçons… » de Silex Podcast.
+"""Génère le carrousel « cinq leçons d'endurance réalistes » de Silex Podcast.
 
-Usage : python3 make.py   (depuis n'importe où)
+Style calqué sur le carrousel de référence : photo plein cadre, grand numéro
+à empattements, texte court en sans-serif arrondie, ombre légère, rien d'autre.
+
+Usage : python3 make.py
+Sortie : slides/slide_01.jpg … slide_07.jpg, preview.jpg et carrousel-silex.pdf
 Pour changer un texte ou une photo, modifie COVER / SLIDES / CTA puis relance.
-Dans les leçons, **mots** = mots mis en couleur.
 """
 import os
-import re
-import subprocess
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 W, H = 1080, 1350
-ACCENT = (255, 210, 63)
 
 
 def font(name, size):
-    path = subprocess.run(['fc-match', '-f', '%{file}', name], capture_output=True, text=True).stdout
-    return ImageFont.truetype(path, size)
+    return ImageFont.truetype(os.path.join(HERE, 'fonts', name + '.ttf'), size)
+
+
+SERIF = 'PlayfairDisplay_400Regular'
+SANS = {400: 'Poppins_400Regular', 500: 'Poppins_500Medium', 600: 'Poppins_600SemiBold',
+        700: 'Poppins_700Bold', 800: 'Poppins_800ExtraBold'}
 
 
 def photo(name, fx=0.5, fy=0.5, zoom=1.0):
@@ -30,162 +34,117 @@ def photo(name, fx=0.5, fy=0.5, zoom=1.0):
     cw, ch = int(cw / zoom), int(ch / zoom)
     x = min(max(int(fx * w - cw / 2), 0), w - cw)
     y = min(max(int(fy * h - ch / 2), 0), h - ch)
-    return im.crop((x, y, x + cw, y + ch)).resize((W, H), Image.LANCZOS).convert('RGBA')
+    im = im.crop((x, y, x + cw, y + ch)).resize((W, H), Image.LANCZOS)
+    return ImageEnhance.Brightness(im).enhance(0.9).convert('RGBA')  # très léger assombrissement
 
 
-def bottom_shade(im, start=0.5, full=0.8, alpha=235):
-    """Dégradé sombre en bas de l'image (sert aussi à masquer le bas de la photo)."""
-    g = Image.new('L', (1, H))
-    for y in range(H):
-        t = (y / H - start) / (full - start)
-        g.putpixel((0, y), int(alpha * min(max(t, 0), 1)))
-    black = Image.new('RGBA', (W, H), (8, 10, 14, 255))
-    black.putalpha(g.resize((W, H)))
-    im.alpha_composite(black)
+def draw_text(base, xy, s, fnt, anchor='la', blur=6, op=190, spacing=0, align='center'):
+    """Texte blanc avec une ombre douce, comme sur la référence."""
+    for b, o in ((blur * 4, int(op * 0.55)), (blur, op)):  # halo large + ombre serrée
+        sh = Image.new('RGBA', base.size, (0, 0, 0, 0))
+        ImageDraw.Draw(sh).multiline_text(xy, s, font=fnt, fill=(0, 0, 0, o), anchor=anchor,
+                                          spacing=spacing, align=align)
+        base.alpha_composite(sh.filter(ImageFilter.GaussianBlur(b)))
+    ImageDraw.Draw(base).multiline_text(xy, s, font=fnt, fill='white', anchor=anchor,
+                                        spacing=spacing, align=align)
 
 
-def top_shade(im, end=0.42, alpha=130):
-    g = Image.new('L', (1, H))
-    for y in range(H):
-        g.putpixel((0, y), int(alpha * max(0, 1 - y / (H * end))))
-    black = Image.new('RGBA', (W, H), (8, 10, 14, 255))
-    black.putalpha(g.resize((W, H)))
-    im.alpha_composite(black)
-
-
-def shadowed(base, draw_fn, blur, op):
-    sh = Image.new('RGBA', base.size, (0, 0, 0, 0))
-    draw_fn(ImageDraw.Draw(sh), (0, 0, 0, op))
-    base.alpha_composite(sh.filter(ImageFilter.GaussianBlur(blur)))
-    draw_fn(ImageDraw.Draw(base), None)
-
-
-def text(base, xy, s, fnt, anchor='mm', blur=10, op=150, spacing=6, fill='white'):
-    shadowed(base, lambda d, c: d.multiline_text(xy, s, font=fnt, fill=c or fill, anchor=anchor,
-                                                 spacing=spacing, align='center'), blur, op)
-
-
-def rich(base, y, s, fnt, maxw=840, lh=58, blur=12, op=190):
-    """Texte centré multi-lignes, **mots** en couleur. Renvoie le y de fin."""
-    words = []
-    for i, part in enumerate(re.split(r'\*\*', s)):
-        words += [(w, i % 2 == 1) for w in part.split(' ') if w]  # \u00a0 = espace insécable
+def wrap(s, fnt, maxw):
     d = ImageDraw.Draw(Image.new('RGB', (1, 1)))
-    sp = d.textlength(' ', font=fnt)
-    lines, cur, cw = [], [], 0
-    for w, hl in words:
-        ww = d.textlength(w, font=fnt)
-        if cur and cw + sp + ww > maxw and w[0] not in ',.)':
-            lines.append((cur, cw))
-            cur, cw = [], 0
-        glue = bool(cur) and w[0] in ',.)'
-        cw = cw + (sp if cur and not glue else 0) + ww
-        cur.append((w, hl, ww, glue))
-    lines.append((cur, cw))
-
-    def draw(dr, c):
-        yy = y
-        for line, lw in lines:
-            x = (W - lw) / 2
-            for k, (w, hl, ww, glue) in enumerate(line):
-                if k and not glue:
-                    x += sp
-                dr.text((x, yy), w, font=fnt, fill=c or (ACCENT if hl else 'white'), anchor='la')
-                x += ww
-            yy += lh
-    shadowed(base, draw, blur, op)
-    return y + lh * len(lines)
+    lines, cur = [], ''
+    for word in s.split(' '):
+        t = (cur + ' ' + word).strip()
+        if not cur or d.textlength(t, font=fnt) <= maxw or word[0] in '»,.':
+            cur = t
+        else:
+            lines.append(cur)
+            cur = word
+    lines.append(cur)
+    return '\n'.join(lines)
 
 
 def cover(c):
-    im = photo(c['photo'])
-    text(im, (-28, 330), 'cinq', font('Inter Display:black', 330), anchor='ls', blur=16, op=120)
-    text(im, (150, 470), 'leçons', font('Inter Display:extrabold', 150), anchor='ls', blur=12, op=120)
-    text(im, (155, 560), "d'endurance réalistes", font('Inter Display:light', 64), anchor='ls', blur=10, op=160)
-    bottom_shade(im, 0.55, 1.0, 170)
-    y = 980
-    for line in c['bottom']:
-        text(im, (62, y), line, font('Inter Display:black', 62), anchor='ls', blur=12, op=150)
-        y += 70
-    text(im, (66, y + 10), c['small'], font('Inter Display:medium', 36), anchor='ls', blur=8, op=190)
+    im = photo(c['photo'], c.get('fx', 0.5), c.get('fy', 0.5))
+    x0, y = 92, c.get('top', 330)
+    draw_text(im, (-24, y), 'cinq', font(SANS[800], 318), anchor='ls')
+    y += 150
+    draw_text(im, (x0, y), 'leçons', font(SANS[700], 150), anchor='ls')
+    y += 92
+    draw_text(im, (x0 + 6, y), c['middle'], font(SANS[400], 54), anchor='ls')
+    y += 158
+    draw_text(im, (x0, y), c['big'], font(SANS[800], 150), anchor='ls')
+    y += 62
+    draw_text(im, (x0 + 6, y), c['small'], font(SANS[500], 36), anchor='ls')
     return im
 
 
 def lesson(s):
     im = photo(s['photo'], s.get('fx', 0.5), s.get('fy', 0.5), s.get('zoom', 1.0))
-    if s.get('bottom'):
-        bottom_shade(im, s.get('shade_start', 0.45), s.get('shade_full', 0.72), 240)
-    else:
-        top_shade(im, *s.get('shade', (0.42, 130)))
-    y = int(H * s.get('y', 0.10))
-    text(im, (W // 2, y + 120), f"{s['n']}.", font('FreeSerif', 140), anchor='ms', blur=14, op=130)
-    text(im, (W // 2, y + 190), s['name'], font('Inter Display:black', 62), anchor='ms', blur=12, op=170)
-    text(im, (W // 2, y + 236), s['role'], font('Inter Display:medium', 32), anchor='ms', blur=8, op=190)
-    rich(im, y + 275, s['text'], font('Inter:bold', 44))
-    text(im, (W // 2, H - 60), s['credit'], font('Inter:semibold', 26), anchor='ms', blur=8, op=190)
+    y = int(H * s['y'])
+    draw_text(im, (W // 2, y), f"{s['n']}.", font(SERIF, 168), anchor='ms')
+    body = font(SANS[600], 39)
+    keep = s['text'].replace('« ', '«\u00a0').replace(' »', '\u00a0»')  # guillemets collés au mot
+    txt = wrap(keep, body, s.get('maxw', 740))
+    draw_text(im, (W // 2, y + 24), txt, body, anchor='ma', spacing=4)
+    bottom = ImageDraw.Draw(im).multiline_textbbox((W // 2, y + 24), txt, font=body, anchor='ma',
+                                                   spacing=4)[3]
+    draw_text(im, (W // 2, bottom + 28), s['who'], font(SANS[500], 28), anchor='ma')
     return im
 
 
 def cta(c):
-    im = photo(c['photo'])
-    top_shade(im, end=0.62, alpha=215)
-    y = int(H * 0.09)
-    text(im, (W // 2, y), c['title'], font('Inter Display:black', 92), anchor='ma', blur=14, op=190)
-    text(im, (W // 2, y + 112), c['sub'], font('Inter Display:bold', 52), anchor='ma', blur=12, op=190)
-    yy = y + 250
-    for line, hl in c['lines']:
-        text(im, (W // 2, yy), line, font('Inter:bold', 46), anchor='ma', blur=10, op=200,
-             fill=ACCENT if hl else 'white')
-        yy += 62
+    im = photo(c['photo'], c.get('fx', 0.5), c.get('fy', 0.5), c.get('zoom', 1.0))
+    y = int(H * c['y'])
+    draw_text(im, (W // 2, y), c['title'], font(SANS[700], 64), anchor='ma', spacing=6)
+    body = font(SANS[600], 40)
+    draw_text(im, (W // 2, y + 190), wrap(c['text'], body, 720), body, anchor='ma', spacing=4)
     return im
 
 
 COVER = {
-    'photo': 'pointe-mont-blanc',
-    'bottom': ['tirées de 36 invités,', 'dont un champion olympique'],
-    'small': '(que la plupart des coureurs ignorent)',
+    'photo': 'pointe-mont-blanc', 'top': 330,
+    'middle': "d'endurance réalistes tirées de",
+    'big': '36 invités',
+    'small': '(dont un champion olympique)',
 }
 
-# Les leçons marquées [À VALIDER] dans legende.md sont à confirmer avec ce que l'invité dit vraiment.
 SLIDES = [
-    {'photo': 'sortie-eau', 'fy': 0.0, 'n': 1, 'y': 0.02,
-     'name': 'Kristian Blummenfelt', 'role': 'champion olympique de triathlon',
-     'text': "À Tokyo, sa VO2max tournait autour de **85** : il gagne l'or. Avant Paris, elle était à **97** : il perd. « Le but, c'est de **gagner le jour de la course**. »",
-     'credit': 'Épisode 10 · Silex Podcast'},
-    {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.06, 'shade': (0.55, 175),
-     'name': 'Blaise Dubois', 'role': 'fondateur de La Clinique du Coureur',
-     'text': "Pas le temps ? **«\u00a05\u00a0minutes, ça\u00a0compte.\u00a0»** Même en jean, c'est 450 appuis par jambe. Alors cours **un peu, tous les jours**.",
-     'credit': 'Épisode 12 · Silex Podcast'},
-    {'photo': 'velo-trio', 'fx': 0.62, 'n': 3, 'y': 0.01, 'shade': (0.45, 170),
-     'name': 'Guillaume Millet', 'role': 'chercheur, spécialiste de la fatigue',
-     'text': "« La récupération fait partie de l'entraînement. » **Dormir, bien manger, te reposer** : pas besoin du dernier complément à la mode.",
-     'credit': 'Épisode 14 · Silex Podcast'},
-    {'photo': 'velo-lyon', 'n': 4, 'y': 0.04, 'shade': (0.5, 170),
-     'name': 'Chloé Herbiet', 'role': "de sage-femme à championne d'Europe",
-     'text': "Le plus important, c'est la base : du volume, **en aisance**, pas à fond. « Si on est en aisance, le lendemain, **on a envie d'y retourner**.\u00a0»",
-     'credit': 'Épisode 8 · Silex Podcast'},
-    {'photo': 'avant-depart', 'fx': 0.53, 'fy': 0.55, 'zoom': 1.15, 'n': 5, 'bottom': True, 'y': 0.50,
-     'shade_start': 0.40, 'shade_full': 0.62,
-     'name': 'Dawa Sherpa', 'role': 'vainqueur du tout premier UTMB',
-     'text': "« Il faut aimer, et le faire **pour soi-même**. » Si tu passes ton temps à **te comparer**, un jour ou l'autre, ça ne tiendra plus.",
-     'credit': 'Épisode 35 · Silex Podcast'},
+    {'photo': 'sortie-eau', 'fy': 0.0, 'n': 1, 'y': 0.22,
+     'text': "À Tokyo, sa VO2max tournait autour de 85 : il gagne l'or. Avant Paris, elle était à 97 : il perd. « Le but, c'est de gagner le jour de la course. »",
+     'who': 'Kristian Blummenfelt, champion olympique'},
+    {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.21,
+     'text': "Pas le temps ? « 5 minutes, ça compte. » Même en jean, c'est 450 appuis par jambe. Alors cours un peu, tous les jours.",
+     'who': 'Blaise Dubois, La Clinique du Coureur'},
+    {'photo': 'velo-trio', 'fx': 0.62, 'n': 3, 'y': 0.16,
+     'text': "« La récupération fait partie de l'entraînement. » Dormir, bien manger, te reposer : pas besoin du dernier complément à la mode.",
+     'who': 'Guillaume Millet, spécialiste de la fatigue'},
+    {'photo': 'velo-lyon', 'n': 4, 'y': 0.18,
+     'text': "Le plus important, c'est la base : du volume, en aisance, pas à fond. « Si on est en aisance, le lendemain, on a envie d'y retourner. »",
+     'who': "Chloé Herbiet, championne d'Europe de semi"},
+    {'photo': 'tente', 'n': 5, 'y': 0.18,
+     'text': "« Il faut aimer, et le faire pour soi-même. » Si tu passes ton temps à te comparer, un jour ou l'autre, ça ne tiendra plus.",
+     'who': 'Dawa Sherpa, vainqueur du premier UTMB'},
 ]
 
+# Photo en combinaison : recadrage serré qui s'arrête au buste.
 CTA = {
-    'photo': 'tente',
-    'title': 'Enregistre ce post',
-    'sub': 'pour ta prochaine prépa',
-    'lines': [("Commence par l'épisode avec", False), ('Kristian Blummenfelt', True), ('lien en bio', False)],
+    'photo': 'avant-depart', 'fx': 0.31, 'fy': 0.43, 'zoom': 1.6, 'y': 0.06,
+    'title': 'Enregistre ce post\npour ta prochaine prépa',
+    'text': "Commence par l'épisode avec Kristian Blummenfelt. Lien en bio.",
 }
 
 if __name__ == '__main__':
     out = os.path.join(HERE, 'slides')
     os.makedirs(out, exist_ok=True)
     slides = [cover(COVER)] + [lesson(s) for s in SLIDES] + [cta(CTA)]
+    slides = [s.convert('RGB') for s in slides]
     for i, s in enumerate(slides):
-        s.convert('RGB').save(os.path.join(out, f'slide_{i + 1:02d}.jpg'), quality=93)
-    prev = Image.new('RGB', (360 * 4, 450 * 2), 'white')
+        s.save(os.path.join(out, f'slide_{i + 1:02d}.jpg'), quality=93)
+    slides[0].save(os.path.join(HERE, 'carrousel-silex.pdf'), save_all=True,
+                   append_images=slides[1:], resolution=150)
+    pad, tw, th = 24, 360, 450
+    prev = Image.new('RGB', (pad + 4 * (tw + pad), pad + 2 * (th + pad)), (245, 245, 245))
     for i, s in enumerate(slides):
-        prev.paste(s.convert('RGB').resize((360, 450)), ((i % 4) * 360, (i // 4) * 450))
-    prev.save(os.path.join(HERE, 'preview.jpg'))
+        prev.paste(s.resize((tw, th)), (pad + (i % 4) * (tw + pad), pad + (i // 4) * (th + pad)))
+    prev.save(os.path.join(HERE, 'preview.jpg'), quality=92)
     print('ok', len(slides))
