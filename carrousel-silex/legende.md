@@ -9,7 +9,7 @@ Une VO2max de 97… et il a perdu 👇
 Et ce qui revient le plus souvent, ce n'est pas un plan d'entraînement secret :
 
 1. La VO2max ne gagne pas les courses (@[Kristian Blummenfelt])
-2. Trop, trop vite, trop tôt : voilà d'où viennent les blessures (@[Blaise Dubois])
+2. 5 minutes de course, ça compte (@[Blaise Dubois])
 3. La fatigue se joue aussi dans la tête (@[Guillaume Millet])
 4. Un vrai boulot n'empêche pas d'aller loin (@[Chloé Herbiet])
 5. N'attends pas d'être prêt (@[Dawa Sherpa])
@@ -33,7 +33,7 @@ Et ce qui revient le plus souvent, ce n'est pas un plan d'entraînement secret :
 Ces textes ont été écrits sans accès aux transcriptions. Vérifie que chacun correspond à ce que l'invité dit, ou remplace-le par une vraie citation :
 
 - ✅ Slide 2 · Kristian Blummenfelt : validé avec la transcription (14:28–15:32, VO2max ~85 à Tokyo, 97 avant Paris).
-- [À VALIDER] Slide 3 · Blaise Dubois : « trop, trop vite, trop tôt ».
+- ✅ Slide 3 · Blaise Dubois : validé avec la transcription (39:23–40:32, « 5 minutes, ça compte », 900 sauts par jambe, stress quotidien).
 - [À VALIDER] Slide 4 · Guillaume Millet : « Ton cerveau décide souvent avant tes muscles. »
 - [À VALIDER] Slide 5 · Chloé Herbiet : « Un vrai boulot n'empêche pas d'aller loin. »
 - [À VALIDER] Slide 6 · Dawa Sherpa : « Les pionniers n'attendaient pas d'être prêts. »

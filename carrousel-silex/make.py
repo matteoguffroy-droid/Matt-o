@@ -69,7 +69,7 @@ def rich(base, y, s, fnt, maxw=840, lh=58, blur=12, op=190):
     """Texte centré multi-lignes, **mots** en couleur. Renvoie le y de fin."""
     words = []
     for i, part in enumerate(re.split(r'\*\*', s)):
-        words += [(w, i % 2 == 1) for w in part.split()]
+        words += [(w, i % 2 == 1) for w in part.split(' ') if w]  # \u00a0 = espace insécable
     d = ImageDraw.Draw(Image.new('RGB', (1, 1)))
     sp = d.textlength(' ', font=fnt)
     lines, cur, cw = [], [], 0
@@ -116,7 +116,7 @@ def lesson(s):
     if s.get('bottom'):
         bottom_shade(im, s.get('shade_start', 0.45), s.get('shade_full', 0.72), 240)
     else:
-        top_shade(im)
+        top_shade(im, *s.get('shade', (0.42, 130)))
     y = int(H * s.get('y', 0.10))
     text(im, (W // 2, y + 120), f"{s['n']}.", font('FreeSerif', 140), anchor='ms', blur=14, op=130)
     text(im, (W // 2, y + 190), s['name'], font('Inter Display:black', 62), anchor='ms', blur=12, op=170)
@@ -152,9 +152,9 @@ SLIDES = [
      'name': 'Kristian Blummenfelt', 'role': 'champion olympique de triathlon',
      'text': "À Tokyo, sa VO2max tournait autour de **85** : il gagne l'or. Avant Paris, elle était à **97** : il perd. « Le but, c'est de **gagner le jour de la course**. »",
      'credit': 'Épisode 10 · Silex Podcast'},
-    {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.06,
+    {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.06, 'shade': (0.55, 175),
      'name': 'Blaise Dubois', 'role': 'fondateur de La Clinique du Coureur',
-     'text': "La plupart des blessures ne viennent pas d'un manque d'étirements. Elles viennent du **trop, trop vite, trop tôt**.",
+     'text': "Pas le temps ? **«\u00a05\u00a0minutes, ça\u00a0compte.\u00a0»** Même en jean, c'est 900 appuis par jambe. Alors cours **un peu, tous les jours**.",
      'credit': 'Épisode 12 · Silex Podcast'},
     {'photo': 'velo-trio', 'fx': 0.62, 'n': 3, 'y': 0.03,
      'name': 'Guillaume Millet', 'role': 'chercheur, spécialiste de la fatigue',
