@@ -154,7 +154,7 @@ SLIDES = [
      'credit': 'Épisode 10 · Silex Podcast'},
     {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.06, 'shade': (0.55, 175),
      'name': 'Blaise Dubois', 'role': 'fondateur de La Clinique du Coureur',
-     'text': "Pas le temps ? **«\u00a05\u00a0minutes, ça\u00a0compte.\u00a0»** Même en jean, c'est 900 appuis par jambe. Alors cours **un peu, tous les jours**.",
+     'text': "Pas le temps ? **«\u00a05\u00a0minutes, ça\u00a0compte.\u00a0»** Même en jean, c'est 450 appuis par jambe. Alors cours **un peu, tous les jours**.",
      'credit': 'Épisode 12 · Silex Podcast'},
     {'photo': 'velo-trio', 'fx': 0.62, 'n': 3, 'y': 0.03,
      'name': 'Guillaume Millet', 'role': 'chercheur, spécialiste de la fatigue',

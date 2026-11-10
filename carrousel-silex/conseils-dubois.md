@@ -2,7 +2,7 @@
 
 | # | Passage | Ce qu'il dit | Format | Accroche |
 |---|---|---|---|---|
-| 1 | 39:23–40:32 | « 5 minutes, ça compte. » Même en jean, 5 min de jog = 900 sauts sur chaque jambe. Le stress quotidien est l'une des meilleures préventions. | Reel (extrait) | « Pas le temps de courir ? Un expert des blessures dit que 5 minutes suffisent. » |
+| 1 | 39:23–40:32 | « 5 minutes, ça compte. » Même en jean, 5 min de jog ≈ 450 appuis sur chaque jambe (Blaise dit 900, mais à ~180 pas/min ça fait 900 au total). Le stress quotidien est l'une des meilleures préventions. | Reel (extrait) | « Pas le temps de courir ? Un expert des blessures dit que 5 minutes suffisent. » |
 | 2 | 29:28–31:03 | L'amorti ne prévient pas les blessures. Les anti-pronateurs et le drop ne changent rien à l'incidence des blessures, selon des études de qualité. | Reel (débat) | « Tes chaussures avec plein d'amorti ne te protègent pas des blessures. » |
 | 3 | 31:42–32:06 | Plus d'amorti → chaussure plus lourde → cadence plus lente, plus grands pas, plus de stress sur le genou. | Carrousel (schéma) | « Pourquoi ta grosse chaussure peut te blesser au genou » |
 | 4 | 32:25–33:13 | Débutant : commence avec une chaussure simple et basse. Déjà habitué à des chaussures maximalistes et pas blessé ? Ne change pas du jour au lendemain. | Reel | « Ne jette pas tes chaussures maximalistes (pas tout de suite) » |

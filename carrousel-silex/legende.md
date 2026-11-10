@@ -33,7 +33,7 @@ Et ce qui revient le plus souvent, ce n'est pas un plan d'entraînement secret :
 Ces textes ont été écrits sans accès aux transcriptions. Vérifie que chacun correspond à ce que l'invité dit, ou remplace-le par une vraie citation :
 
 - ✅ Slide 2 · Kristian Blummenfelt : validé avec la transcription (14:28–15:32, VO2max ~85 à Tokyo, 97 avant Paris).
-- ✅ Slide 3 · Blaise Dubois : validé avec la transcription (39:23–40:32, « 5 minutes, ça compte », 900 sauts par jambe, stress quotidien).
+- ✅ Slide 3 · Blaise Dubois : validé avec la transcription (39:23–40:32, « 5 minutes, ça compte », 450 appuis par jambe à ~180 pas/min — Blaise dit 900, chiffre corrigé, stress quotidien).
 - [À VALIDER] Slide 4 · Guillaume Millet : « Ton cerveau décide souvent avant tes muscles. »
 - [À VALIDER] Slide 5 · Chloé Herbiet : « Un vrai boulot n'empêche pas d'aller loin. »
 - [À VALIDER] Slide 6 · Dawa Sherpa : « Les pionniers n'attendaient pas d'être prêts. »
