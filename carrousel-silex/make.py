@@ -167,7 +167,7 @@ SLIDES = [
     {'photo': 'avant-depart', 'fx': 0.53, 'fy': 0.55, 'zoom': 1.15, 'n': 5, 'bottom': True, 'y': 0.50,
      'shade_start': 0.40, 'shade_full': 0.62,
      'name': 'Dawa Sherpa', 'role': 'vainqueur du tout premier UTMB',
-     'text': "Les pionniers n'attendaient pas d'être prêts. **Toi non plus** : la meilleure course est celle à laquelle tu t'inscris.",
+     'text': "« Il faut aimer, et le faire **pour soi-même**. » Si tu passes ton temps à **te comparer**, un jour ou l'autre, ça ne tiendra plus.",
      'credit': 'Épisode 35 · Silex Podcast'},
 ]
 
