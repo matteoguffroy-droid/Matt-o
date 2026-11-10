@@ -1,14 +1,17 @@
-"""Génère le carrousel « 5 leçons d'endurance réalistes tirées de 36 épisodes ».
+"""Génère le carrousel « cinq leçons… » de Silex Podcast.
 
-Usage : python3 make.py   (depuis le dossier carrousel-silex)
-Pour changer un texte ou une photo, modifie la liste SLIDES puis relance.
+Usage : python3 make.py   (depuis n'importe où)
+Pour changer un texte ou une photo, modifie COVER / SLIDES / CTA puis relance.
+Dans les leçons, **mots** = mots mis en couleur.
 """
 import os
+import re
 import subprocess
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 W, H = 1080, 1350
+ACCENT = (255, 210, 63)
 
 
 def font(name, size):
@@ -30,78 +33,148 @@ def photo(name, fx=0.5, fy=0.5, zoom=1.0):
     return im.crop((x, y, x + cw, y + ch)).resize((W, H), Image.LANCZOS).convert('RGBA')
 
 
-def text(base, xy, s, fnt, anchor='mm', blur=10, op=150, spacing=6):
+def bottom_shade(im, start=0.5, full=0.8, alpha=235):
+    """Dégradé sombre en bas de l'image (sert aussi à masquer le bas de la photo)."""
+    g = Image.new('L', (1, H))
+    for y in range(H):
+        t = (y / H - start) / (full - start)
+        g.putpixel((0, y), int(alpha * min(max(t, 0), 1)))
+    black = Image.new('RGBA', (W, H), (8, 10, 14, 255))
+    black.putalpha(g.resize((W, H)))
+    im.alpha_composite(black)
+
+
+def top_shade(im, end=0.42, alpha=130):
+    g = Image.new('L', (1, H))
+    for y in range(H):
+        g.putpixel((0, y), int(alpha * max(0, 1 - y / (H * end))))
+    black = Image.new('RGBA', (W, H), (8, 10, 14, 255))
+    black.putalpha(g.resize((W, H)))
+    im.alpha_composite(black)
+
+
+def shadowed(base, draw_fn, blur, op):
     sh = Image.new('RGBA', base.size, (0, 0, 0, 0))
-    ImageDraw.Draw(sh).multiline_text(xy, s, font=fnt, fill=(0, 0, 0, op), anchor=anchor, spacing=spacing, align='center')
+    draw_fn(ImageDraw.Draw(sh), (0, 0, 0, op))
     base.alpha_composite(sh.filter(ImageFilter.GaussianBlur(blur)))
-    ImageDraw.Draw(base).multiline_text(xy, s, font=fnt, fill='white', anchor=anchor, spacing=spacing, align='center')
+    draw_fn(ImageDraw.Draw(base), None)
 
 
-def wrap(s, fnt, maxw):
+def text(base, xy, s, fnt, anchor='mm', blur=10, op=150, spacing=6, fill='white'):
+    shadowed(base, lambda d, c: d.multiline_text(xy, s, font=fnt, fill=c or fill, anchor=anchor,
+                                                 spacing=spacing, align='center'), blur, op)
+
+
+def rich(base, y, s, fnt, maxw=840, lh=58, blur=12, op=190):
+    """Texte centré multi-lignes, **mots** en couleur. Renvoie le y de fin."""
+    words = []
+    for i, part in enumerate(re.split(r'\*\*', s)):
+        words += [(w, i % 2 == 1) for w in part.split()]
     d = ImageDraw.Draw(Image.new('RGB', (1, 1)))
-    lines, cur = [], ''
-    for word in s.split():
-        t = (cur + ' ' + word).strip()
-        if d.textlength(t, font=fnt) <= maxw:
-            cur = t
-        else:
-            lines.append(cur)
-            cur = word
-    lines.append(cur)
-    return '\n'.join(lines)
+    sp = d.textlength(' ', font=fnt)
+    lines, cur, cw = [], [], 0
+    for w, hl in words:
+        ww = d.textlength(w, font=fnt)
+        if cur and cw + sp + ww > maxw and w[0] not in ',.)':
+            lines.append((cur, cw))
+            cur, cw = [], 0
+        glue = bool(cur) and w[0] in ',.)'
+        cw = cw + (sp if cur and not glue else 0) + ww
+        cur.append((w, hl, ww, glue))
+    lines.append((cur, cw))
+
+    def draw(dr, c):
+        yy = y
+        for line, lw in lines:
+            x = (W - lw) / 2
+            for k, (w, hl, ww, glue) in enumerate(line):
+                if k and not glue:
+                    x += sp
+                dr.text((x, yy), w, font=fnt, fill=c or (ACCENT if hl else 'white'), anchor='la')
+                x += ww
+            yy += lh
+    shadowed(base, draw, blur, op)
+    return y + lh * len(lines)
 
 
-def cover():
-    im = photo('pointe-mont-blanc', 0.5, 0.5)
+def cover(c):
+    im = photo(c['photo'])
     text(im, (-28, 330), 'cinq', font('Inter Display:black', 330), anchor='ls', blur=16, op=120)
     text(im, (150, 470), 'leçons', font('Inter Display:extrabold', 150), anchor='ls', blur=12, op=120)
     text(im, (155, 560), "d'endurance réalistes", font('Inter Display:light', 64), anchor='ls', blur=10, op=160)
-    text(im, (66, 1040), 'tirées de', font('Inter Display:light', 64), anchor='ls', blur=10, op=170)
-    text(im, (60, 1180), '36 épisodes', font('Inter Display:black', 140), anchor='ls', blur=14, op=140)
-    text(im, (66, 1250), '(que la plupart des coureurs ignorent)', font('Inter Display:medium', 36), anchor='ls', blur=8, op=190)
+    bottom_shade(im, 0.55, 1.0, 170)
+    y = 980
+    for line in c['bottom']:
+        text(im, (62, y), line, font('Inter Display:black', 62), anchor='ls', blur=12, op=150)
+        y += 70
+    text(im, (66, y + 10), c['small'], font('Inter Display:medium', 36), anchor='ls', blur=8, op=190)
     return im
 
 
-def lesson(name, fx, fy, n, body, credit, cy, zoom=1.0):
-    im = photo(name, fx, fy, zoom)
-    y = int(H * cy)
-    text(im, (W // 2, y), f'{n}.', font('FreeSerif', 150), anchor='ms', blur=14, op=130)
-    b = font('Inter:bold', 44)
-    text(im, (W // 2, y + 30), wrap(body, b, 820), b, anchor='ma', blur=12, op=180, spacing=4)
-    text(im, (W // 2, H - 70), credit, font('Inter:semibold', 26), anchor='ms', blur=8, op=190)
+def lesson(s):
+    im = photo(s['photo'], s.get('fx', 0.5), s.get('fy', 0.5), s.get('zoom', 1.0))
+    if s.get('bottom'):
+        bottom_shade(im, s.get('shade_start', 0.45), s.get('shade_full', 0.72), 240)
+    else:
+        top_shade(im)
+    y = int(H * s.get('y', 0.10))
+    text(im, (W // 2, y + 120), f"{s['n']}.", font('FreeSerif', 140), anchor='ms', blur=14, op=130)
+    text(im, (W // 2, y + 190), s['name'], font('Inter Display:black', 62), anchor='ms', blur=12, op=170)
+    text(im, (W // 2, y + 236), s['role'], font('Inter Display:medium', 32), anchor='ms', blur=8, op=190)
+    rich(im, y + 275, s['text'], font('Inter:bold', 44))
+    text(im, (W // 2, H - 60), s['credit'], font('Inter:semibold', 26), anchor='ms', blur=8, op=190)
     return im
 
 
-def cta():
-    im = photo('tente', 0.5, 0.5)
-    text(im, (W // 2, int(H * 0.22)), '36 épisodes.\n36 histoires d’endurance.', font('Inter Display:black', 74), anchor='mm', blur=14, op=170, spacing=10)
-    text(im, (W // 2, int(H * 0.22) + 140), 'Écoute Silex Podcast\nlien en bio', font('Inter:bold', 42), anchor='ma', blur=10, op=180, spacing=8)
+def cta(c):
+    im = photo(c['photo'])
+    y = int(H * 0.12)
+    text(im, (W // 2, y), c['title'], font('Inter Display:black', 70), anchor='ma', blur=14, op=170, spacing=10)
+    rich(im, y + 190, c['text'], font('Inter:bold', 42), lh=56)
     return im
 
 
-# (photo, centre x, centre y, n°, leçon, crédit, hauteur du texte en fraction de la slide)
+COVER = {
+    'photo': 'pointe-mont-blanc',
+    'bottom': ["d'un champion olympique,", "d'une légende de l'UTMB", 'et de 34 autres invités'],
+    'small': '(que la plupart des coureurs ignorent)',
+}
+
+# Les leçons marquées [À VALIDER] dans legende.md sont à confirmer avec ce que l'invité dit vraiment.
 SLIDES = [
-    ('arche-utmb', 0.5, 0.6, 1,
-     "Personne ne commence par l'ultra. On monte une marche, puis la suivante. Ton prochain objectif doit te faire un peu peur, pas te terrifier.",
-     'Leçon tirée de l’ép. 34 · Alvin Alexandre', 0.19),
-    ('avant-depart', 0.53, 0.55, 2,
-     "Tenter un truc immense et ne pas le finir, ce n'est pas un échec. C'est ce qui te rend capable de tout le reste.",
-     'Leçon tirée de l’épisode avec Fabien Leroux', 0.11, 1.15),
-    ('velo-trio', 0.62, 0.5, 3,
-     "L'endurance ne récompense pas les plus forts à 25 ans. Elle récompense ceux qui sont encore là à 45.",
-     'Leçon tirée de l’ép. 22 · Ludovic Pommeret', 0.22),
-    ('velo-lyon', 0.5, 0.5, 4,
-     "Un vrai boulot n'empêche pas d'aller loin. Ta vie n'est pas un frein : c'est le cadre de ton entraînement.",
-     'Leçon tirée de l’épisode avec Chloé Herbiet', 0.24),
-    ('sortie-eau', 0.5, 0.0, 5,
-     "Les pionniers n'attendaient pas d'être prêts. Toi non plus : la meilleure course est celle à laquelle tu t'inscris.",
-     'Leçon tirée de l’ép. 35 · Dawa Sherpa', 0.12),
+    {'photo': 'sortie-eau', 'fy': 0.0, 'n': 1, 'y': 0.02,
+     'name': 'Kristian Blummenfelt', 'role': 'champion olympique de triathlon',
+     'text': "Un champion olympique ne cherche pas la séance magique. Il **mesure**, il ajuste, et il **recommence** la semaine suivante.",
+     'credit': 'Épisode 10 · Silex Podcast'},
+    {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.06,
+     'name': 'Blaise Dubois', 'role': 'fondateur de La Clinique du Coureur',
+     'text': "La plupart des blessures ne viennent pas d'un manque d'étirements. Elles viennent du **trop, trop vite, trop tôt**.",
+     'credit': 'Épisode 12 · Silex Podcast'},
+    {'photo': 'velo-trio', 'fx': 0.62, 'n': 3, 'y': 0.03,
+     'name': 'Guillaume Millet', 'role': 'chercheur, spécialiste de la fatigue',
+     'text': "La fatigue ne se joue pas que dans les jambes. **Ton cerveau** décide souvent avant tes muscles.",
+     'credit': 'Épisode 14 · Silex Podcast'},
+    {'photo': 'velo-lyon', 'n': 4, 'y': 0.06,
+     'name': 'Chloé Herbiet', 'role': "de sage-femme à championne d'Europe",
+     'text': "**Un vrai boulot** n'empêche pas d'aller loin. Ta vie n'est pas un frein : c'est le cadre de ton entraînement.",
+     'credit': 'Épisode 8 · Silex Podcast'},
+    {'photo': 'avant-depart', 'fx': 0.53, 'fy': 0.55, 'zoom': 1.15, 'n': 5, 'bottom': True, 'y': 0.50,
+     'shade_start': 0.40, 'shade_full': 0.62,
+     'name': 'Dawa Sherpa', 'role': 'vainqueur du tout premier UTMB',
+     'text': "Les pionniers n'attendaient pas d'être prêts. **Toi non plus** : la meilleure course est celle à laquelle tu t'inscris.",
+     'credit': 'Épisode 35 · Silex Podcast'},
 ]
+
+CTA = {
+    'photo': 'tente',
+    'title': 'Enregistre ce post\npour ta prochaine prépa',
+    'text': "Commence par l'épisode avec **Kristian Blummenfelt** · lien en bio. Et envoie-le à **ton binôme de sortie longue**.",
+}
 
 if __name__ == '__main__':
     out = os.path.join(HERE, 'slides')
     os.makedirs(out, exist_ok=True)
-    slides = [cover()] + [lesson(*s) for s in SLIDES] + [cta()]
+    slides = [cover(COVER)] + [lesson(s) for s in SLIDES] + [cta(CTA)]
     for i, s in enumerate(slides):
         s.convert('RGB').save(os.path.join(out, f'slide_{i + 1:02d}.jpg'), quality=93)
     prev = Image.new('RGB', (360 * 4, 450 * 2), 'white')
