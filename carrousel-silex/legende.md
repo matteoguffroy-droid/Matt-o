@@ -2,13 +2,13 @@
 
 ## Légende
 
-Ce qu'un champion olympique m'a appris 👇
+Une VO2max de 97… et il a perdu 👇
 
 36 épisodes de Silex Podcast. Un champion olympique, le vainqueur du tout premier UTMB, un chercheur qui étudie la fatigue, une sage-femme devenue championne d'Europe…
 
 Et ce qui revient le plus souvent, ce n'est pas un plan d'entraînement secret :
 
-1. Mesurer, ajuster, recommencer (@[Kristian Blummenfelt])
+1. La VO2max ne gagne pas les courses (@[Kristian Blummenfelt])
 2. Trop, trop vite, trop tôt : voilà d'où viennent les blessures (@[Blaise Dubois])
 3. La fatigue se joue aussi dans la tête (@[Guillaume Millet])
 4. Un vrai boulot n'empêche pas d'aller loin (@[Chloé Herbiet])
@@ -32,7 +32,7 @@ Et ce qui revient le plus souvent, ce n'est pas un plan d'entraînement secret :
 
 Ces textes ont été écrits sans accès aux transcriptions. Vérifie que chacun correspond à ce que l'invité dit, ou remplace-le par une vraie citation :
 
-- [À VALIDER] Slide 2 · Kristian Blummenfelt : « Il mesure, il ajuste, il recommence la semaine suivante. »
+- ✅ Slide 2 · Kristian Blummenfelt : validé avec la transcription (14:28–15:32, VO2max ~85 à Tokyo, 97 avant Paris).
 - [À VALIDER] Slide 3 · Blaise Dubois : « trop, trop vite, trop tôt ».
 - [À VALIDER] Slide 4 · Guillaume Millet : « Ton cerveau décide souvent avant tes muscles. »
 - [À VALIDER] Slide 5 · Chloé Herbiet : « Un vrai boulot n'empêche pas d'aller loin. »

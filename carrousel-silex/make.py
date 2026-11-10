@@ -150,7 +150,7 @@ COVER = {
 SLIDES = [
     {'photo': 'sortie-eau', 'fy': 0.0, 'n': 1, 'y': 0.02,
      'name': 'Kristian Blummenfelt', 'role': 'champion olympique de triathlon',
-     'text': "Un champion olympique ne cherche pas la séance magique. Il **mesure**, il ajuste, et il **recommence** la semaine suivante.",
+     'text': "À Tokyo, sa VO2max tournait autour de **85** : il gagne l'or. Avant Paris, elle était à **97** : il perd. « Le but, c'est de **gagner le jour de la course**. »",
      'credit': 'Épisode 10 · Silex Podcast'},
     {'photo': 'arche-utmb', 'fy': 0.6, 'n': 2, 'y': 0.06,
      'name': 'Blaise Dubois', 'role': 'fondateur de La Clinique du Coureur',
