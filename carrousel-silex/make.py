@@ -162,7 +162,7 @@ SLIDES = [
      'credit': 'Épisode 14 · Silex Podcast'},
     {'photo': 'velo-lyon', 'n': 4, 'y': 0.04, 'shade': (0.5, 170),
      'name': 'Chloé Herbiet', 'role': "de sage-femme à championne d'Europe",
-     'text': "Premier marathon : pas assez de ravito, elle prend le mur au 33e. Deuxième : elle mange plus, **pas de mur**. « Le mur, c'était surtout une **question de ravitaillement**. »",
+     'text': "Le plus important, c'est la base : du volume, **en aisance**, pas à fond. « Si on est en aisance, le lendemain, **on a envie d'y retourner**.\u00a0»",
      'credit': 'Épisode 8 · Silex Podcast'},
     {'photo': 'avant-depart', 'fx': 0.53, 'fy': 0.55, 'zoom': 1.15, 'n': 5, 'bottom': True, 'y': 0.50,
      'shade_start': 0.40, 'shade_full': 0.62,

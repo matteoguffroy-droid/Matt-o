@@ -11,7 +11,7 @@ Et ce qui revient le plus souvent, ce n'est pas un plan d'entraînement secret :
 1. La VO2max ne gagne pas les courses (@[Kristian Blummenfelt])
 2. 5 minutes de course, ça compte (@[Blaise Dubois])
 3. La fatigue se joue aussi dans la tête (@[Guillaume Millet])
-4. Le mur, c'est surtout une question de ravito (@[Chloé Herbiet])
+4. Construis ta base en aisance, pas à fond (@[Chloé Herbiet])
 5. N'attends pas d'être prêt (@[Dawa Sherpa])
 
 💬 Écris SILEX en commentaire et je t'envoie l'épisode avec Kristian Blummenfelt.
@@ -35,6 +35,6 @@ Ces textes ont été écrits sans accès aux transcriptions. Vérifie que chacun
 - ✅ Slide 2 · Kristian Blummenfelt : validé avec la transcription (14:28–15:32, VO2max ~85 à Tokyo, 97 avant Paris).
 - ✅ Slide 3 · Blaise Dubois : validé avec la transcription (39:23–40:32, « 5 minutes, ça compte », 450 appuis par jambe à ~180 pas/min — Blaise dit 900, chiffre corrigé, stress quotidien).
 - [À VALIDER] Slide 4 · Guillaume Millet : « Ton cerveau décide souvent avant tes muscles. »
-- ✅ Slide 5 · Chloé Herbiet : validé avec la transcription (32:34–33:15, mur au 33-34e au 1er marathon faute d'alimentation, pas de mur au 2e). L'ancienne leçon « un vrai boulot n'empêche pas d'aller loin » était contredite par l'interview : retirée.
+- ✅ Slide 5 · Chloé Herbiet : validé avec la transcription (33:28–34:00, « le plus important c'est la base », courir en aisance, « le lendemain on a envie d'y retourner »). L'ancienne leçon « un vrai boulot n'empêche pas d'aller loin » était contredite par l'interview : retirée.
 - [À VALIDER] Slide 6 · Dawa Sherpa : « Les pionniers n'attendaient pas d'être prêts. »
 - Les numéros d'épisode (10, 12, 14, 8, 35) viennent des miniatures YouTube.
