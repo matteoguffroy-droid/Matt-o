@@ -16,7 +16,7 @@ def font(name, size):
     return ImageFont.truetype(path, size)
 
 
-def photo(name, fx=0.5, fy=0.5):
+def photo(name, fx=0.5, fy=0.5, zoom=1.0):
     """Recadre la photo en 4:5 autour du point (fx, fy) puis la met en 1080x1350."""
     im = Image.open(os.path.join(HERE, 'photos', name + '.jpg')).convert('RGB')
     w, h = im.size
@@ -24,6 +24,7 @@ def photo(name, fx=0.5, fy=0.5):
         cw, ch = int(h * W / H), h
     else:
         cw, ch = w, int(w * H / W)
+    cw, ch = int(cw / zoom), int(ch / zoom)
     x = min(max(int(fx * w - cw / 2), 0), w - cw)
     y = min(max(int(fy * h - ch / 2), 0), h - ch)
     return im.crop((x, y, x + cw, y + ch)).resize((W, H), Image.LANCZOS).convert('RGBA')
@@ -61,8 +62,8 @@ def cover():
     return im
 
 
-def lesson(name, fx, fy, n, body, credit, cy):
-    im = photo(name, fx, fy)
+def lesson(name, fx, fy, n, body, credit, cy, zoom=1.0):
+    im = photo(name, fx, fy, zoom)
     y = int(H * cy)
     text(im, (W // 2, y), f'{n}.', font('FreeSerif', 150), anchor='ms', blur=14, op=130)
     b = font('Inter:bold', 44)
@@ -83,18 +84,18 @@ SLIDES = [
     ('arche-utmb', 0.5, 0.6, 1,
      "Personne ne commence par l'ultra. On monte une marche, puis la suivante. Ton prochain objectif doit te faire un peu peur, pas te terrifier.",
      'Leçon tirée de l’ép. 34 · Alvin Alexandre', 0.19),
-    ('avant-depart', 0.5, 0.5, 2,
+    ('avant-depart', 0.53, 0.55, 2,
      "Tenter un truc immense et ne pas le finir, ce n'est pas un échec. C'est ce qui te rend capable de tout le reste.",
-     'Leçon tirée de l’épisode avec Fabien Leroux', 0.13),
+     'Leçon tirée de l’épisode avec Fabien Leroux', 0.11, 1.15),
     ('velo-trio', 0.62, 0.5, 3,
      "L'endurance ne récompense pas les plus forts à 25 ans. Elle récompense ceux qui sont encore là à 45.",
      'Leçon tirée de l’ép. 22 · Ludovic Pommeret', 0.22),
     ('velo-lyon', 0.5, 0.5, 4,
      "Un vrai boulot n'empêche pas d'aller loin. Ta vie n'est pas un frein : c'est le cadre de ton entraînement.",
      'Leçon tirée de l’épisode avec Chloé Herbiet', 0.24),
-    ('sortie-eau', 0.5, 0.55, 5,
+    ('sortie-eau', 0.5, 0.0, 5,
      "Les pionniers n'attendaient pas d'être prêts. Toi non plus : la meilleure course est celle à laquelle tu t'inscris.",
-     'Leçon tirée de l’ép. 35 · Dawa Sherpa', 0.13),
+     'Leçon tirée de l’ép. 35 · Dawa Sherpa', 0.12),
 ]
 
 if __name__ == '__main__':
