@@ -280,7 +280,6 @@ def cta(c):
 COVER = {'photo': 'trail-foret', 'shift': -460, 'y': 0.72, 'size': 100, 'pill': ('édition ', 'course à pied')}
 
 # Descriptions tirées des publications publiques des comptes (novembre 2026).
-# papacanca.io et mustapha.salmi_ : comptes non lisibles depuis la session, textes à fournir.
 ACCOUNTS = [
     {'n': 1, 'handle': 'lesgenouxdanslegif', 'meta': '182 k abonnés', 'posts': [1, 2, 3],
      'text': "Le trail raconté avec humour, des lives de course et leur revue Point de Côté : 192 pages, zéro pub."},
@@ -288,10 +287,10 @@ ACCOUNTS = [
      'text': "Ses photos et ses films de l'UTMB, de la Diagonale des Fous ou du Tor des Géants sont de vraies œuvres."},
     {'n': 3, 'handle': 'maxime_lopes', 'meta': '18,9 k abonnés', 'posts': [1, 4],
      'text': "Marathonien en 2h20, il partage ses prépas et ses chronos, et anime le podcast Runwise."},
-    {'n': 4, 'handle': 'papacanca.io', 'meta': '',
-     'text': "TEXTE À COMPLÉTER"},
-    {'n': 5, 'handle': 'mustapha.salmi_', 'meta': '',
-     'text': "TEXTE À COMPLÉTER"},
+    {'n': 4, 'handle': 'papanca.io', 'meta': '138,5 k abonnés', 'posts': [1, 3, 5],
+     'text': "Une appli de coaching running, et surtout un compte plein de memes et de fiches pratiques (en anglais) qui parlent à tous les coureurs."},
+    {'n': 5, 'handle': 'mustapha.salmi__', 'meta': '210 k abonnés', 'posts': [3, 4, 1],
+     'text': "Il court avec son père, vainqueur du marathon de Rome il y a 37 ans. Leurs vidéos ensemble sont les plus touchantes du running."},
 ]
 
 CTA = {
