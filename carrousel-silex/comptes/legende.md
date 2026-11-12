@@ -2,23 +2,22 @@
 
 ## Légende (à copier-coller)
 
-5 comptes que je suis depuis qu'ils sont passés au micro de Silex.
+Ici on ne gatekeep pas : 5 comptes running que je suis vraiment.
 
-1. @[La Clinique du Coureur] : la science des blessures, sans bullshit
-2. @[Guillaume Millet] : tout comprendre de la fatigue
-3. @[Chloé Herbiet] : de sage-femme à championne d'Europe
-4. @[Zinzin Reporter] : l'ultra-trail de l'intérieur
-5. @[Dawa Sherpa] : une légende du trail (et un grand cœur)
+1. @lesgenouxdanslegif : le trail raconté avec humour
+2. @simon.dugue : les plus belles images de l'ultra
+3. @maxime_lopes : un marathonien en 2h20 qui partage tout
+4. @papacanca.io : [à compléter]
+5. @mustapha.salmi_ : [à compléter]
 
-Tu en suis déjà combien ? Et lequel j'ai oublié ? 👇
+Il en existe plein d'autres : donne tes pépites en commentaire 👇 (oui, tu as le droit de te citer toi-même)
 
-Envoie ce post à ton pote qui ne suit que des comptes de pros 🏃
+🎧 Les interviews sont sur Silex Podcast, lien en bio.
 
-🎧 Leurs interviews sont sur Silex Podcast, lien en bio.
-
-#trail #running #courseapied #ultratrail #endurance #podcast #comptesasuivre
+#trail #running #courseapied #ultratrail #marathon #endurance #comptesasuivre
 
 ## Avant de publier
 
-- Je n'ai pas pu vérifier les comptes Instagram des invités : remplace chaque @[...] par le vrai compte, et identifie-les sur leur slide.
-- C'est un post idéal pour leur demander de le repartager en story : ils sont mis en avant positivement.
+- Complète les lignes 4 et 5, et les textes des slides 5 et 6 (dans make.py).
+- Identifie chaque compte sur sa slide : ils sont mis en avant positivement, ils risquent de repartager en story.
+- Les nombres d'abonnés sur les slides datent de novembre 2026 : vérifie-les le jour J ou retire-les.
