@@ -13,16 +13,24 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
-from make import H, W, SANS, SERIF, Image, ImageDraw, ImageFilter, font, wrap  # noqa: E402
+from make import H, W, SANS, SERIF, Image, ImageDraw, ImageFilter, ImageFont, font, photo, wrap  # noqa: E402
 
-BG = (16, 23, 42)          # bleu nuit
-DOT = (255, 255, 255, 18)  # trame de points discrète
-ACCENT = (232, 89, 12)     # orange (pastille du @)
-SOFT = (196, 204, 222)     # texte secondaire
+# Charte Silex Podcast (relevée sur les miniatures YouTube)
+BG = (27, 75, 75)           # vert canard
+LIGHT = (39, 98, 96)        # halo plus clair en haut
+DOT = (255, 255, 255, 16)   # trame de points discrète
+ACCENT = (252, 144, 76)     # orange Silex
+SOFT = (196, 222, 218)      # texte secondaire
+EMOJI_FONT = '/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf'
 
 
 def background():
     im = Image.new('RGBA', (W, H), BG + (255,))
+    # halo doux en haut de la slide
+    halo = Image.new('L', (W, H), 0)
+    ImageDraw.Draw(halo).ellipse((-W * 0.3, -H * 0.45, W * 1.3, H * 0.55), fill=255)
+    halo = halo.filter(ImageFilter.GaussianBlur(160))
+    im = Image.composite(Image.new('RGBA', (W, H), LIGHT + (255,)), im, halo)
     dots = Image.new('RGBA', (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(dots)
     for y in range(18, H, 36):
@@ -30,6 +38,61 @@ def background():
             d.ellipse((x - 1.6, y - 1.6, x + 1.6, y + 1.6), fill=DOT)
     im.alpha_composite(dots)
     return im
+
+
+def emoji(ch, size):
+    f = ImageFont.truetype(EMOJI_FONT, 109)
+    c = Image.new('RGBA', (160, 160), (0, 0, 0, 0))
+    ImageDraw.Draw(c).text((10, 10), ch, font=f, embedded_color=True)
+    c = c.crop(c.getbbox())
+    return c.resize((int(c.width * size / c.height), size), Image.LANCZOS)
+
+
+def runs(im, cy, parts, gap=0):
+    """Ligne centrée faite de morceaux : (texte, police, couleur) ou ('emoji', caractère, taille)."""
+    d = ImageDraw.Draw(im)
+    items = []
+    for p in parts:
+        if p[0] == 'emoji':
+            e = emoji(p[1], p[2])
+            items.append(('e', e, e.width))
+        else:
+            items.append(('t', p, d.textlength(p[0], font=p[1])))
+    total = sum(w for _, _, w in items) + gap * (len(items) - 1)
+    x = (W - total) / 2
+    for kind, it, w in items:
+        if kind == 'e':
+            im.alpha_composite(it, (int(x), int(cy - it.height / 2)))
+        else:
+            txt, f, col = it
+            sh = Image.new('RGBA', im.size, (0, 0, 0, 0))
+            ImageDraw.Draw(sh).text((x, cy), txt, font=f, fill=(0, 0, 0, 150), anchor='lm')
+            im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8)))
+            ImageDraw.Draw(im).text((x, cy), txt, font=f, fill=col, anchor='lm')
+        x += w + gap
+    return (W - total) / 2, (W + total) / 2
+
+
+def insta_sticker(size, angle=-10):
+    """Petit logo d'appareil photo façon Instagram, dessiné (dégradé orange-rose-violet)."""
+    g = Image.new('RGBA', (size, size))
+    gd = ImageDraw.Draw(g)
+    c0, c1, c2 = (254, 176, 64), (232, 38, 112), (140, 54, 214)
+    for i in range(size * 2):
+        t = i / (size * 2)
+        col = tuple(int(c0[k] + (c1[k] - c0[k]) * t * 2) if t < .5 else int(c1[k] + (c2[k] - c1[k]) * (t - .5) * 2) for k in range(3))
+        gd.line((i, 0, 0, i), fill=col + (255,), width=2)
+    m = Image.new('L', (size, size), 0)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, size - 1, size - 1), size // 4, fill=255)
+    g.putalpha(m)
+    d = ImageDraw.Draw(g)
+    s = size
+    d.rounded_rectangle((s * .2, s * .2, s * .8, s * .8), s * .18, outline='white', width=max(3, s // 14))
+    d.ellipse((s * .36, s * .36, s * .64, s * .64), outline='white', width=max(3, s // 14))
+    d.ellipse((s * .66, s * .28, s * .72, s * .34), fill='white')
+    framed = Image.new('RGBA', (size + 10, size + 10), (0, 0, 0, 0))
+    framed.alpha_composite(g, (5, 5))
+    return framed.rotate(angle, resample=Image.BICUBIC, expand=True)
 
 
 def text(im, xy, s, fnt, fill='white', anchor='la', spacing=4, align='center'):
@@ -89,24 +152,33 @@ def chip(im, cx, y, label):
 
 
 def cover(c):
-    im = background()
-    x0, y = 92, 360
-    text(im, (-24, y), 'cinq', font(SANS[800], 318), anchor='ls')
-    y += 182
-    text(im, (x0, y), 'comptes', font(SANS[700], 150), anchor='ls')
-    y += 92
-    text(im, (x0 + 6, y), 'à suivre si tu aimes', font(SANS[400], 54), anchor='ls')
-    y += 140
-    text(im, (x0, y), 'courir', font(SANS[800], 150), anchor='ls')
-    y += 62
-    text(im, (x0 + 6, y), c['small'], font(SANS[500], 36), fill=SOFT, anchor='ls')
-    # les 5 photos de profil en rang, qui se chevauchent légèrement
-    d, step = 150, 128
-    x = (W - (step * (len(ACCOUNTS) - 1) + d + 12)) // 2
-    for a in ACCOUNTS:
-        av = avatar(a['handle'], d)
-        shadow_paste(im, av, (x, H - 300))
-        x += step
+    """Première slide inspirée du post « Ces 6 comptes que j'adore suivre » : ta photo + titre."""
+    im = photo(c['photo'], c.get('fx', 0.5), c.get('fy', 0.5), c.get('zoom', 1.0))
+    # léger voile à la couleur Silex, puis dégradé vert canard vers le bas pour le titre
+    im.alpha_composite(Image.new('RGBA', (W, H), BG + (38,)))
+    g = Image.new('L', (1, H))
+    for y in range(H):
+        t = (y / H - 0.36) / 0.36
+        g.putpixel((0, y), int(225 * min(max(t, 0), 1)))
+    shade = Image.new('RGBA', (W, H), BG + (255,))
+    shade.putalpha(g.resize((W, H)))
+    im.alpha_composite(shade)
+    big, reg = font(SANS[800], 122), font(SANS[400], 122)
+    y = int(H * 0.555)
+    x0, x1 = runs(im, y, [('Ces ', reg, 'white'), ('5 comptes', big, 'white')])
+    st = insta_sticker(104)
+    im.alpha_composite(st, (int(x1 - 70), int(y - 150)))
+    runs(im, y + 128, [("que j'", reg, 'white'), ('adore', big, ACCENT)])
+    runs(im, y + 256, [('emoji', '\U0001F440', 84), ('suivre', big, ACCENT), ('emoji', '\U0001F3C3', 112)], gap=14)
+    # pastille « si tu aimes courir »
+    d = ImageDraw.Draw(im)
+    f1, f2 = font(SANS[400], 46), font(SANS[700], 46)
+    w1, w2 = d.textlength('si tu aimes ', font=f1), d.textlength('courir', font=f2)
+    pw, ph, py = w1 + w2 + 70, 86, y + 350
+    px = (W - pw) / 2
+    d.rounded_rectangle((px, py, px + pw, py + ph), ph / 2, fill=BG, outline=(255, 255, 255), width=3)
+    d.text((px + 35, py + ph / 2), 'si tu aimes ', font=f1, fill='white', anchor='lm')
+    d.text((px + 35 + w1, py + ph / 2), 'courir', font=f2, fill='white', anchor='lm')
     return im
 
 
@@ -143,7 +215,7 @@ def cta(c):
     return im
 
 
-COVER = {'small': '(que je suis vraiment, promis)'}
+COVER = {'photo': 'sortie-eau', 'fy': 1.0}
 
 # Descriptions tirées des publications publiques des comptes (novembre 2026).
 # papacanca.io et mustapha.salmi_ : comptes non lisibles depuis la session, textes à fournir.
