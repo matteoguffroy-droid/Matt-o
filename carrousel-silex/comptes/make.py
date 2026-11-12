@@ -25,6 +25,7 @@ ACCENT = (252, 144, 76)     # orange Silex
 SOFT = (196, 222, 218)      # texte secondaire
 DEEP = (11, 36, 37)         # vert canard profond (bas des slides)
 SELECT = (236, 222, 150)    # surlignage façon sélection iOS
+CREAM = (255, 226, 160)     # mots mis en avant sur la couverture
 SELECT_KNOB = (246, 232, 170, 255)
 
 
@@ -230,8 +231,8 @@ def cover(c):
     x0, x1, _ = runs(im, y, [('Ces ', reg, 'white'), ('5 comptes', big, 'white')], select=1)
     st = insta_sticker(104)
     im.alpha_composite(st, (int(x1 - 30), int(y - size * 1.3)))
-    runs(im, y + lh, [("que j'", reg, 'white'), ('adore', big, ACCENT)])
-    runs(im, y + 2 * lh, [('suivre', big, ACCENT)])
+    runs(im, y + lh, [("que j'", reg, 'white'), ('adore', big, CREAM)])
+    runs(im, y + 2 * lh, [('suivre', big, CREAM)])
     # pastille « édition course à pied »
     d = ImageDraw.Draw(im)
     f1, f2 = font(SANS[400], 46), font(SANS[700], 46)
