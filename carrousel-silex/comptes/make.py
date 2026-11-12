@@ -9,7 +9,10 @@ Sortie : slides/slide_01.jpg … slide_07.jpg, preview.jpg et comptes-a-suivre.p
 Images des comptes : accounts/<compte>/0.jpg (photo de profil), 1.jpg… (publications).
 """
 import os
+import subprocess
 import sys
+
+import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
@@ -18,59 +21,104 @@ from make import H, W, SANS, SERIF, Image, ImageDraw, ImageFilter, ImageFont, fo
 # Charte Silex Podcast (relevée sur les miniatures YouTube)
 BG = (27, 75, 75)           # vert canard
 LIGHT = (39, 98, 96)        # halo plus clair en haut
-DOT = (255, 255, 255, 16)   # trame de points discrète
 ACCENT = (252, 144, 76)     # orange Silex
 SOFT = (196, 222, 218)      # texte secondaire
-EMOJI_FONT = '/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf'
+DEEP = (11, 36, 37)         # vert canard profond (bas des slides)
+SELECT = (236, 222, 150)    # surlignage façon sélection iOS
+SELECT_KNOB = (246, 232, 170, 255)
 
 
-def background():
-    im = Image.new('RGBA', (W, H), BG + (255,))
-    # halo doux en haut de la slide
-    halo = Image.new('L', (W, H), 0)
-    ImageDraw.Draw(halo).ellipse((-W * 0.3, -H * 0.45, W * 1.3, H * 0.55), fill=255)
-    halo = halo.filter(ImageFilter.GaussianBlur(160))
-    im = Image.composite(Image.new('RGBA', (W, H), LIGHT + (255,)), im, halo)
-    dots = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(dots)
-    for y in range(18, H, 36):
-        for x in range(18, W, 36):
-            d.ellipse((x - 1.6, y - 1.6, x + 1.6, y + 1.6), fill=DOT)
-    im.alpha_composite(dots)
-    return im
+def background(seed=0):
+    """Fond premium : dégradé vert canard, courbes de niveau façon carte de trail, halo orange et grain."""
+    rng = np.random.default_rng(seed)
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    t = yy / H
+    top, bottom = np.array(LIGHT, np.float32), np.array(DEEP, np.float32)
+    img = top[None, None, :] * (1 - t[..., None]) + bottom[None, None, :] * t[..., None]
+    # halo orange très discret, dans un coin qui change d'une slide à l'autre
+    cx, cy = (W * 0.95, H * 0.95) if seed % 2 == 0 else (W * 0.05, H * 0.9)
+    glow = np.exp(-(((xx - cx) / (W * 0.55)) ** 2 + ((yy - cy) / (H * 0.45)) ** 2))
+    img += glow[..., None] * (np.array(ACCENT, np.float32) - img) * 0.16
+    # courbes de niveau : champ lisse aléatoire, puis lignes à intervalles réguliers
+    field = Image.fromarray((rng.random((9, 7)) * 255).astype(np.uint8)).resize((W, H), Image.BICUBIC)
+    f = np.asarray(field.filter(ImageFilter.GaussianBlur(60)), np.float32) / 255
+    f = (f - f.min()) / (f.max() - f.min() + 1e-6) * 16
+    dist = np.abs(f - np.round(f))
+    grad = np.hypot(*np.gradient(f)) + 1e-6
+    line = np.clip(1 - dist / (grad * 1.6), 0, 1)
+    img = img * (1 - line[..., None] * 0.10) + 255 * line[..., None] * 0.10
+    # vignette et grain argentique
+    v = ((xx / W - 0.5) ** 2 + (yy / H - 0.5) ** 2)
+    img *= (1 - v * 0.55)[..., None]
+    img += rng.normal(0, 6, (H, W, 1))
+    return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8), 'RGB').convert('RGBA')
 
 
-def emoji(ch, size):
-    f = ImageFont.truetype(EMOJI_FONT, 109)
-    c = Image.new('RGBA', (160, 160), (0, 0, 0, 0))
-    ImageDraw.Draw(c).text((10, 10), ch, font=f, embedded_color=True)
-    c = c.crop(c.getbbox())
-    return c.resize((int(c.width * size / c.height), size), Image.LANCZOS)
+def ios_font(size, weight='Medium'):
+    path = subprocess.run(['fc-match', '-f', '%{file}', f'Inter:{weight.lower()}'], capture_output=True, text=True).stdout
+    return ImageFont.truetype(path, size)
 
 
-def runs(im, cy, parts, gap=0):
-    """Ligne centrée faite de morceaux : (texte, police, couleur) ou ('emoji', caractère, taille)."""
+def selection(im, box):
+    """Effet « texte sélectionné » d'iOS : surlignage, poignées et menu Copier / Tout sélectionner."""
+    x0, y0, x1, y1 = box
+    hl = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(hl)
+    d.rectangle(box, fill=SELECT + (105,))
+    knob = SELECT_KNOB
+    d.rectangle((x0 - 3, y0, x0 + 3, y1), fill=knob)
+    d.rectangle((x1 - 3, y0, x1 + 3, y1), fill=knob)
+    d.ellipse((x0 - 14, y0 - 26, x0 + 14, y0 + 2), fill=knob)
+    d.ellipse((x1 - 14, y1 - 2, x1 + 14, y1 + 26), fill=knob)
+    im.alpha_composite(hl)
+    # menu contextuel au-dessus
+    f = ios_font(38)
+    items = ['Copier', 'Tout sélectionner', 'Rechercher']
+    pad, h = 30, 82
+    widths = [ImageDraw.Draw(im).textlength(t, font=f) + 2 * pad for t in items] + [62]
+    mw = sum(widths)
+    mx = min(max((x0 + x1) / 2 - mw / 2, 30), W - 30 - mw)
+    my = y0 - 44 - h
+    menu = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    md = ImageDraw.Draw(menu)
+    md.rounded_rectangle((mx, my, mx + mw, my + h), h / 2, fill=(255, 255, 255, 250))
+    tx = (x0 + x1) / 2
+    md.polygon([(tx - 18, my + h - 1), (tx + 18, my + h - 1), (tx, my + h + 18)], fill=(255, 255, 255, 250))
+    x = mx
+    for i, (t, w) in enumerate(zip(items + ['>'], widths)):
+        if i:
+            md.line((x, my + 14, x, my + h - 14), fill=(0, 0, 0, 40), width=2)
+        if t == '>':
+            md.line([(x + 24, my + 28), (x + 38, my + h / 2), (x + 24, my + h - 28)], fill=(20, 20, 20), width=4, joint='curve')
+        else:
+            md.text((x + w / 2, my + h / 2), t, font=f, fill=(20, 20, 20), anchor='mm')
+        x += w
+    sh = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle((mx, my + 8, mx + mw, my + h + 8), h / 2, fill=(0, 0, 0, 90))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(14)))
+    im.alpha_composite(menu)
+
+
+def runs(im, cy, parts, select=None):
+    """Ligne centrée faite de morceaux (texte, police, couleur). select = index du morceau à « sélectionner »."""
     d = ImageDraw.Draw(im)
-    items = []
-    for p in parts:
-        if p[0] == 'emoji':
-            e = emoji(p[1], p[2])
-            items.append(('e', e, e.width))
-        else:
-            items.append(('t', p, d.textlength(p[0], font=p[1])))
-    total = sum(w for _, _, w in items) + gap * (len(items) - 1)
+    widths = [d.textlength(t, font=f) for t, f, _ in parts]
+    total = sum(widths)
     x = (W - total) / 2
-    for kind, it, w in items:
-        if kind == 'e':
-            im.alpha_composite(it, (int(x), int(cy - it.height / 2)))
-        else:
-            txt, f, col = it
-            sh = Image.new('RGBA', im.size, (0, 0, 0, 0))
-            ImageDraw.Draw(sh).text((x, cy), txt, font=f, fill=(0, 0, 0, 150), anchor='lm')
-            im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8)))
-            ImageDraw.Draw(im).text((x, cy), txt, font=f, fill=col, anchor='lm')
-        x += w + gap
-    return (W - total) / 2, (W + total) / 2
+    pos = []
+    for (t, f, col), w in zip(parts, widths):
+        pos.append(x)
+        x += w
+    if select is not None:
+        t, f, _ = parts[select]
+        bb = d.textbbox((pos[select], cy), t, font=f, anchor='lm')
+        selection(im, (bb[0] - 10, cy - f.size * 0.46, bb[2] + 10, cy + f.size * 0.5))
+    for (t, f, col), x in zip(parts, pos):
+        sh = Image.new('RGBA', im.size, (0, 0, 0, 0))
+        ImageDraw.Draw(sh).text((x, cy), t, font=f, fill=(0, 0, 0, 150), anchor='lm')
+        im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8)))
+        ImageDraw.Draw(im).text((x, cy), t, font=f, fill=col, anchor='lm')
+    return (W - total) / 2, (W + total) / 2, pos
 
 
 def insta_sticker(size, angle=-10):
@@ -165,11 +213,11 @@ def cover(c):
     im.alpha_composite(shade)
     big, reg = font(SANS[800], 122), font(SANS[400], 122)
     y = int(H * 0.555)
-    x0, x1 = runs(im, y, [('Ces ', reg, 'white'), ('5 comptes', big, 'white')])
+    x0, x1, _ = runs(im, y, [('Ces ', reg, 'white'), ('5 comptes', big, 'white')], select=1)
     st = insta_sticker(104)
-    im.alpha_composite(st, (int(x1 - 70), int(y - 150)))
+    im.alpha_composite(st, (int(x1 - 30), int(y - 158)))
     runs(im, y + 128, [("que j'", reg, 'white'), ('adore', big, ACCENT)])
-    runs(im, y + 256, [('emoji', '\U0001F440', 84), ('suivre', big, ACCENT), ('emoji', '\U0001F3C3', 112)], gap=14)
+    runs(im, y + 256, [('suivre', big, ACCENT)])
     # pastille « si tu aimes courir »
     d = ImageDraw.Draw(im)
     f1, f2 = font(SANS[400], 46), font(SANS[700], 46)
@@ -183,7 +231,7 @@ def cover(c):
 
 
 def account(s):
-    im = background()
+    im = background(s['n'])
     text(im, (W // 2, 150), f"{s['n']}.", font(SERIF, 130), anchor='ms')
     av = avatar(s['handle'], 156)
     shadow_paste(im, av, (W // 2 - av.width // 2, 180))
@@ -208,7 +256,7 @@ def account(s):
 
 
 def cta(c):
-    im = background()
+    im = background(7)
     text(im, (W // 2, H // 2 - 150), c['title'], font(SANS[800], 96), anchor='ma', spacing=10)
     body = font(SANS[600], 42)
     text(im, (W // 2, H // 2 + 110), wrap(c['text'], body, 820), body, anchor='ma')
