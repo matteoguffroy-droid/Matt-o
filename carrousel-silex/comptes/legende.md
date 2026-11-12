@@ -4,11 +4,11 @@
 
 Ici on ne gatekeep pas : 5 comptes running que je suis vraiment.
 
-1. @lesgenouxdanslegif : le trail raconté avec humour
+1. @lesgenouxdanslegif : l'actu trail, drôle et décalée
 2. @simon.dugue : les plus belles images de l'ultra
-3. @maxime_lopes : un marathonien en 2h20 qui partage tout
+3. @maxime_lopes : les prépas et les méthodes des meilleurs, avec RunWise
 4. @papanca.io : les memes et fiches running qui parlent à tous les coureurs
-5. @mustapha.salmi__ : courir avec son père, vainqueur du marathon de Rome
+5. @mustapha.salmi__ : matos, courses et coulisses, plein d'énergie
 
 Il en existe plein d'autres : donne tes pépites en commentaire 👇 (oui, tu as le droit de te citer toi-même)
 
