@@ -1,4 +1,4 @@
-"""Carrousel « 5 comptes à suivre si tu aimes courir ».
+"""Carrousel « Ces 5 comptes que j'adore suivre — édition course à pied ».
 
 Polices et typographie du carrousel « cinq leçons » (../make.py), structure
 des posts « comptes à suivre » : fond uni tramé, numéro, photo de profil,
@@ -206,27 +206,29 @@ def cover(c):
     im.alpha_composite(Image.new('RGBA', (W, H), BG + (38,)))
     g = Image.new('L', (1, H))
     for y in range(H):
-        t = (y / H - 0.36) / 0.36
+        t = (y / H - 0.5) / 0.3
         g.putpixel((0, y), int(225 * min(max(t, 0), 1)))
     shade = Image.new('RGBA', (W, H), BG + (255,))
     shade.putalpha(g.resize((W, H)))
     im.alpha_composite(shade)
-    big, reg = font(SANS[800], 122), font(SANS[400], 122)
-    y = int(H * 0.555)
+    size = c.get('size', 122)
+    big, reg = font(SANS[800], size), font(SANS[400], size)
+    y = int(H * c.get('y', 0.555))
+    lh = int(size * 1.05)
     x0, x1, _ = runs(im, y, [('Ces ', reg, 'white'), ('5 comptes', big, 'white')], select=1)
     st = insta_sticker(104)
-    im.alpha_composite(st, (int(x1 - 30), int(y - 158)))
-    runs(im, y + 128, [("que j'", reg, 'white'), ('adore', big, ACCENT)])
-    runs(im, y + 256, [('suivre', big, ACCENT)])
-    # pastille « si tu aimes courir »
+    im.alpha_composite(st, (int(x1 - 30), int(y - size * 1.3)))
+    runs(im, y + lh, [("que j'", reg, 'white'), ('adore', big, ACCENT)])
+    runs(im, y + 2 * lh, [('suivre', big, ACCENT)])
+    # pastille « édition course à pied »
     d = ImageDraw.Draw(im)
     f1, f2 = font(SANS[400], 46), font(SANS[700], 46)
-    w1, w2 = d.textlength('si tu aimes ', font=f1), d.textlength('courir', font=f2)
-    pw, ph, py = w1 + w2 + 70, 86, y + 350
+    w1, w2 = d.textlength(c['pill'][0], font=f1), d.textlength(c['pill'][1], font=f2)
+    pw, ph, py = w1 + w2 + 70, 86, y + 2 * lh + int(size * 0.75)
     px = (W - pw) / 2
     d.rounded_rectangle((px, py, px + pw, py + ph), ph / 2, fill=BG, outline=(255, 255, 255), width=3)
-    d.text((px + 35, py + ph / 2), 'si tu aimes ', font=f1, fill='white', anchor='lm')
-    d.text((px + 35 + w1, py + ph / 2), 'courir', font=f2, fill='white', anchor='lm')
+    d.text((px + 35, py + ph / 2), c['pill'][0], font=f1, fill='white', anchor='lm')
+    d.text((px + 35 + w1, py + ph / 2), c['pill'][1], font=f2, fill='white', anchor='lm')
     return im
 
 
@@ -263,7 +265,7 @@ def cta(c):
     return im
 
 
-COVER = {'photo': 'sortie-eau', 'fy': 1.0}
+COVER = {'photo': 'trail-foret', 'fy': 0.0, 'y': 0.69, 'size': 104, 'pill': ('édition ', 'course à pied')}
 
 # Descriptions tirées des publications publiques des comptes (novembre 2026).
 # papacanca.io et mustapha.salmi_ : comptes non lisibles depuis la session, textes à fournir.
