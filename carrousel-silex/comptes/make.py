@@ -235,13 +235,13 @@ def cover(c):
     runs(im, y + 2 * lh, [('suivre', big, CREAM)])
     # pastille « édition course à pied »
     d = ImageDraw.Draw(im)
-    f1, f2 = font(SANS[400], 46), font(SANS[700], 46)
+    f1, f2 = font(SANS[400], 40), font(SANS[700], 40)
     w1, w2 = d.textlength(c['pill'][0], font=f1), d.textlength(c['pill'][1], font=f2)
-    pw, ph, py = w1 + w2 + 70, 86, y + 2 * lh + int(size * 0.75)
+    pw, ph, py = w1 + w2 + 64, 74, y + 2 * lh + int(size * 0.6)
     px = (W - pw) / 2
     d.rounded_rectangle((px, py, px + pw, py + ph), ph / 2, fill=BG, outline=(255, 255, 255), width=3)
-    d.text((px + 35, py + ph / 2), c['pill'][0], font=f1, fill='white', anchor='lm')
-    d.text((px + 35 + w1, py + ph / 2), c['pill'][1], font=f2, fill='white', anchor='lm')
+    d.text((px + 32, py + ph / 2), c['pill'][0], font=f1, fill='white', anchor='lm')
+    d.text((px + 32 + w1, py + ph / 2), c['pill'][1], font=f2, fill='white', anchor='lm')
     return im
 
 
@@ -307,7 +307,7 @@ def cta(c):
     d.line([(sx + 2, sy - 16), (sx + 18, sy), (sx + 2, sy + 16)], fill='white', width=7, joint='curve')
     # pastille orange Silex Podcast
     f1, f2 = font(SANS[400], 40), font(SANS[700], 40)
-    t1, t2 = 'Les interviews sur ', 'Silex Podcast'
+    t1, t2 = 'RDV sur ', 'Silex Podcast'
     w1, w2 = d.textlength(t1, font=f1), d.textlength(t2, font=f2)
     ph = 92
     pw = 70 + 46 + w1 + w2 + 40
@@ -333,7 +333,7 @@ ACCOUNTS = [
     {'n': 4, 'handle': 'papanca.io', 'meta': '138,5 k abonnés', 'posts': [1, 3, 5],
      'text': "Des memes et des fiches pratiques (en anglais) qui parlent à tous les coureurs."},
     {'n': 5, 'handle': 'mustapha.salmi__', 'meta': '210 k abonnés', 'posts': [1, 2, 3],
-     'text': "Tests de matos, courses, événements running et coulisses de sa vie de coureur : un compte plein d'énergie, sans prise de tête."},
+     'text': "Courses, événements running et coulisses de sa vie de coureur : un compte plein d'énergie, sans prise de tête."},
 ]
 
 CTA = {
