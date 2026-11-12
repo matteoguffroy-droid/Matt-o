@@ -270,11 +270,53 @@ def account(s):
     return im
 
 
+def mic(d, cx, cy, s, col='white'):
+    """Petit pictogramme de micro."""
+    w = max(3, s // 9)
+    d.rounded_rectangle((cx - s * .22, cy - s * .5, cx + s * .22, cy + s * .12), s * .22, fill=col)
+    d.arc((cx - s * .38, cy - s * .3, cx + s * .38, cy + s * .3), 20, 160, fill=col, width=w)
+    d.line((cx, cy + s * .3, cx, cy + s * .48), fill=col, width=w)
+    d.line((cx - s * .2, cy + s * .48, cx + s * .2, cy + s * .48), fill=col, width=w)
+
+
 def cta(c):
     im = background(7)
-    text(im, (W // 2, H // 2 - 150), c['title'], font(SANS[800], 96), anchor='ma', spacing=10)
-    body = font(SANS[600], 42)
-    text(im, (W // 2, H // 2 + 110), wrap(c['text'], body, 820), body, anchor='ma')
+    d = ImageDraw.Draw(im)
+    # les 5 photos de profil en rang
+    av_d, step = 120, 104
+    x = (W - (step * (len(ACCOUNTS) - 1) + av_d + 12)) // 2
+    for a in ACCOUNTS:
+        shadow_paste(im, avatar(a['handle'], av_d), (x, 150))
+        x += step
+    # titre
+    big, reg = font(SANS[800], 104), font(SANS[400], 104)
+    runs(im, 430, [('Et toi, ', reg, 'white'), ('tu suis', big, 'white')])
+    runs(im, 545, [('qui ?', big, CREAM)])
+    text(im, (W // 2, 660), c['text'], font(SANS[500], 38), fill=SOFT, anchor='ma')
+    # fausse zone de commentaire Instagram
+    bw, bh = 880, 118
+    bx, by = (W - bw) // 2, 760
+    shadow_paste(im, rounded(Image.new('RGB', (bw, bh), (255, 255, 255)), bh // 2), (bx, by))
+    d = ImageDraw.Draw(im)
+    d.ellipse((bx + 22, by + 22, bx + 96, by + 96), fill=(222, 230, 228))
+    d.text((bx + 59, by + 59), '?', font=font(SANS[700], 40), fill=BG, anchor='mm')
+    d.text((bx + 124, by + bh / 2), c['placeholder'], font=ios_font(36, 'Regular'), fill=(130, 140, 140), anchor='lm')
+    sx, sy = bx + bw - 66, by + bh / 2
+    d.ellipse((sx - 44, sy - 44, sx + 44, sy + 44), fill=ACCENT)
+    d.line([(sx - 16, sy), (sx + 16, sy)], fill='white', width=7)
+    d.line([(sx + 2, sy - 16), (sx + 18, sy), (sx + 2, sy + 16)], fill='white', width=7, joint='curve')
+    # pastille orange Silex Podcast
+    f1, f2 = font(SANS[400], 40), font(SANS[700], 40)
+    t1, t2 = 'Les interviews sur ', 'Silex Podcast'
+    w1, w2 = d.textlength(t1, font=f1), d.textlength(t2, font=f2)
+    ph = 92
+    pw = 70 + 46 + w1 + w2 + 40
+    px, py = (W - pw) / 2, 1010
+    d.rounded_rectangle((px, py, px + pw, py + ph), ph / 2, fill=ACCENT)
+    mic(d, px + 62, py + ph / 2 + 2, 40)
+    d.text((px + 100, py + ph / 2), t1, font=f1, fill='white', anchor='lm')
+    d.text((px + 100 + w1, py + ph / 2), t2, font=f2, fill='white', anchor='lm')
+    text(im, (W // 2, py + ph + 40), 'lien en bio', font(SANS[500], 34), fill=SOFT, anchor='ma')
     return im
 
 
@@ -295,8 +337,8 @@ ACCOUNTS = [
 ]
 
 CTA = {
-    'title': 'Et toi, tu suis\nqui ?',
-    'text': "Donne tes pépites en commentaire. Les interviews, c'est sur Silex Podcast (lien en bio).",
+    'text': 'Donne tes pépites en commentaire.',
+    'placeholder': 'Ajoute ton compte préféré…',
 }
 
 if __name__ == '__main__':
