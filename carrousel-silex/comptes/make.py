@@ -328,11 +328,11 @@ ACCOUNTS = [
      'text': "L'actu trail racontée de façon drôle et décalée."},
     {'n': 2, 'handle': 'simon.dugue', 'meta': '29 k abonnés', 'posts': [1, 2, 4],
      'text': "Ses photos et ses films de l'UTMB, de la Diagonale des Fous ou du Tor des Géants sont de vraies œuvres."},
-    {'n': 3, 'handle': 'maxime_lopes', 'meta': '18,9 k abonnés', 'posts': [1, 4],
+    {'n': 3, 'handle': 'maxime_lopes', 'meta': '18,8 k abonnés', 'posts': [1, 4],
      'text': "Coureur et coach derrière RunWise : ses prépas, les méthodes des meilleurs décortiquées et le podcast Runwise."},
     {'n': 4, 'handle': 'papanca.io', 'meta': '138,5 k abonnés', 'posts': [1, 3, 5],
      'text': "Des memes et des fiches pratiques (en anglais) qui parlent à tous les coureurs."},
-    {'n': 5, 'handle': 'mustapha.salmi__', 'meta': '210 k abonnés', 'posts': [1, 2, 3],
+    {'n': 5, 'handle': 'mustapha.salmi__', 'meta': '209 k abonnés', 'posts': [1, 2, 3],
      'text': "Courses, événements running et coulisses de sa vie de coureur : un compte plein d'énergie, sans prise de tête."},
 ]
 
