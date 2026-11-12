@@ -16,7 +16,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
-from make import H, W, SANS, SERIF, Image, ImageDraw, ImageFilter, ImageFont, font, photo, wrap  # noqa: E402
+from make import H, W, SANS, SERIF, Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, font, photo, wrap  # noqa: E402
 
 # Charte Silex Podcast (relevée sur les miniatures YouTube)
 BG = (27, 75, 75)           # vert canard
@@ -201,7 +201,19 @@ def chip(im, cx, y, label):
 
 def cover(c):
     """Première slide inspirée du post « Ces 6 comptes que j'adore suivre » : ta photo + titre."""
-    im = photo(c['photo'], c.get('fx', 0.5), c.get('fy', 0.5), c.get('zoom', 1.0))
+    if 'shift' in c:
+        # photo calée en largeur et remontée de `shift` pixels ; le bas est complété par le fond texturé
+        im = background(0)
+        ph = Image.open(os.path.join(os.path.dirname(HERE), 'photos', c['photo'] + '.jpg')).convert('RGB')
+        ph = ph.resize((W, int(ph.height * W / ph.width)), Image.LANCZOS)
+        ph = ImageEnhance.Brightness(ph).enhance(0.9).convert('RGBA')
+        fade = Image.new('L', (1, ph.height))
+        for yy in range(ph.height):
+            fade.putpixel((0, yy), 255 if yy < ph.height - 160 else int(255 * (ph.height - yy) / 160))
+        ph.putalpha(fade.resize(ph.size))
+        im.alpha_composite(ph, (0, c['shift']))
+    else:
+        im = photo(c['photo'], c.get('fx', 0.5), c.get('fy', 0.5), c.get('zoom', 1.0))
     # léger voile à la couleur Silex, puis dégradé vert canard vers le bas pour le titre
     im.alpha_composite(Image.new('RGBA', (W, H), BG + (38,)))
     g = Image.new('L', (1, H))
@@ -265,7 +277,7 @@ def cta(c):
     return im
 
 
-COVER = {'photo': 'trail-foret', 'fy': 0.0, 'y': 0.69, 'size': 104, 'pill': ('édition ', 'course à pied')}
+COVER = {'photo': 'trail-foret', 'shift': -460, 'y': 0.72, 'size': 100, 'pill': ('édition ', 'course à pied')}
 
 # Descriptions tirées des publications publiques des comptes (novembre 2026).
 # papacanca.io et mustapha.salmi_ : comptes non lisibles depuis la session, textes à fournir.
